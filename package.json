@@ -2,6 +2,9 @@
   "name": "subscriptions-app-remix",
   "type": "module",
   "private": true,
+  "engines": {
+    "node": "^18.20 || ^20.10 || >=21.0.0"
+  },
   "scripts": {
     "build": "NODE_ENV=production remix vite:build",
     "dev": "dotenv -c development pnpm shopify app dev",
