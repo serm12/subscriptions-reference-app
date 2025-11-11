@@ -112,6 +112,7 @@ export async function getContracts(
         errorCode: attempt.errorCode,
         processingError: formatProcessingError(attempt),
         orderCreatedAt: attempt.order?.createdAt ?? null,
+        originTime: attempt.originTime ?? null,
       }));
 
       const {subtotalPrice} = getContractPriceBreakdown({

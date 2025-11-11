@@ -216,6 +216,8 @@ export interface BillingAttempt {
   processingError?: BillingAttemptProcessingError | null;
   /** Latest order creation time for this attempt, if an order was created */
   orderCreatedAt?: string | null;
+  /** Attempt origin time, used as fallback when no order exists */
+  originTime?: string | null;
 }
 
 export interface BillingAttemptProcessingError {

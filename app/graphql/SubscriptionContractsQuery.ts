@@ -38,6 +38,7 @@ query SubscriptionContracts(
             node {
               id
               errorCode
+              originTime
               order {
                 id
                 createdAt

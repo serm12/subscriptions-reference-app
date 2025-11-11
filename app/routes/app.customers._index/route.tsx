@@ -70,17 +70,19 @@ export async function loader({request}: LoaderFunctionArgs) {
         (c) => c.customer.id === customerGid,
       );
       totalCount += filtered.length;
-      // 取该客户所有合约中最近的订单创建时间
+      // 取该客户所有合约中最近的订单创建时间；若没有订单则回退到最近一次尝试时间
       for (const contract of filtered) {
         const latestAttemptWithOrder = contract.billingAttempts.find(
           (a) => Boolean(a.orderCreatedAt),
         );
         const createdAt = latestAttemptWithOrder?.orderCreatedAt ?? null;
-        if (createdAt) {
+        const attemptedAt = contract.billingAttempts[0]?.originTime ?? null;
+        const candidate = createdAt ?? attemptedAt;
+        if (candidate) {
           if (!lastOrderAt) {
-            lastOrderAt = createdAt;
-          } else if (new Date(createdAt).getTime() > new Date(lastOrderAt).getTime()) {
-            lastOrderAt = createdAt;
+            lastOrderAt = candidate;
+          } else if (new Date(candidate).getTime() > new Date(lastOrderAt).getTime()) {
+            lastOrderAt = candidate;
           }
         }
       }
