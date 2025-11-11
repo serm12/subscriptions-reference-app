@@ -1,0 +1,11 @@
+{
+    "i18n-ally.localesPaths": [
+        "app/i18n",
+        "public/locales",
+        "extensions/admin-subs-action/locales",
+        "extensions/buyer-subscriptions/locales",
+        "extensions/order-action-extension/locales",
+        "extensions/thank-you-page/locales",
+        "extensions/theme-extension/locales"
+    ]
+}

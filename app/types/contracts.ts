@@ -206,6 +206,7 @@ export interface SubscriptionContractListItemLine {
 }
 
 export interface SubscriptionContractListItemCustomer {
+  id?: string;
   displayName?: string;
 }
 

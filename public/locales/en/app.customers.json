@@ -1,0 +1,36 @@
+{
+  "page": {
+    "title": "Subscription customers"
+  },
+  "table": {
+    "headings": {
+      "id": "Customer ID",
+      "name": "Name",
+      "email": "Email",
+      "subscriptionCount": "Subscription count"
+    },
+    "resourceName": {
+      "singular": "Customer",
+      "plural": "Customers"
+    },
+    "tabs": {
+      "all": "All",
+      "with": "With subscriptions",
+      "without": "Without subscriptions"
+    },
+    "sort": {
+      "subscriptionCountLabel": "By subscription count",
+      "ascendingLabel": "Ascending",
+      "descendingLabel": "Descending"
+    },
+    "emptyState": {
+      "title": "No customers found",
+      "allDescription": "There are no customers yet.",
+      "withDescription": "No customers with subscriptions.",
+      "withoutDescription": "No customers without subscriptions."
+    },
+    "pagination": {
+      "nextPage": "Next page"
+    }
+  }
+}

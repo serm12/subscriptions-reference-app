@@ -119,7 +119,7 @@ export async function getContracts(
       });
       return {
         id,
-        customer: {displayName: customer?.displayName},
+        customer: {id: customer?.id, displayName: customer?.displayName},
         deliveryPolicy: {
           interval: deliveryPolicy?.interval,
           intervalCount: deliveryPolicy?.intervalCount,

@@ -1,0 +1,13 @@
+{
+  "page": {
+    "title": "Customer {{id}} subscriptions overview"
+  },
+  "summary": "This customer has {{count}} subscription contracts",
+  "sample": {
+    "title": "Sample (first {{count}})",
+    "item": {
+      "prefix": "• Contract ID:",
+      "status": "Status: {{status}}"
+    }
+  }
+}
