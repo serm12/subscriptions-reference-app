@@ -33,16 +33,11 @@ query SubscriptionContracts(
         linesCount {
           count
         }
-        billingAttempts(first: 10, reverse: true) {
+        billingAttempts(first: 1, reverse: true) {
           edges {
             node {
               id
               errorCode
-              originTime
-              order {
-                id
-                createdAt
-              }
               processingError {
                 code
                 ... on SubscriptionBillingAttemptInsufficientStockProductVariantsError {

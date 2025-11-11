@@ -9,7 +9,6 @@ import {
   useSetIndexFiltersMode,
   EmptySearchResult,
 } from '@shopify/polaris';
-import {useFormatDate} from '~/utils/helpers/date';
 
 type CustomerItem = {
   id: string;
@@ -17,7 +16,6 @@ type CustomerItem = {
   displayName: string | null;
   email: string | null;
   subscriptionCount: number;
-  lastOrderAt: string | null;
 };
 
 type PageInfo = {hasNextPage: boolean; endCursor: string | null};
@@ -32,7 +30,6 @@ export default function CustomersTable({customers, pageInfo}: CustomersTableProp
   const {mode, setMode} = useSetIndexFiltersMode();
   const navigate = useNavigate();
   const {t} = useTranslation('app.customers');
-  const formatDate = useFormatDate();
 
   const tabs = [
     {content: t('table.tabs.all'), id: 'all', accessibilityLabel: t('table.tabs.all')},
@@ -55,16 +52,6 @@ export default function CustomersTable({customers, pageInfo}: CustomersTableProp
     {
       label: t('table.sort.subscriptionCountLabel'),
       value: 'subs desc',
-      directionLabel: t('table.sort.descendingLabel'),
-    },
-    {
-      label: t('table.sort.lastOrderAtLabel'),
-      value: 'time asc',
-      directionLabel: t('table.sort.ascendingLabel'),
-    },
-    {
-      label: t('table.sort.lastOrderAtLabel'),
-      value: 'time desc',
       directionLabel: t('table.sort.descendingLabel'),
     },
   ];
@@ -135,23 +122,16 @@ export default function CustomersTable({customers, pageInfo}: CustomersTableProp
           {title: t('table.headings.name')},
           {title: t('table.headings.email')},
           {title: t('table.headings.subscriptionCount')},
-          {title: t('table.headings.lastOrderAt')},
         ]}
         selectable={false}
         emptyState={emptyStateMarkup}
       >
         {[...customers]
-          .sort((a, b) => {
-            const sortVal = sortSelected[0];
-            if (sortVal.startsWith('subs')) {
-              return sortVal.includes('asc')
-                ? a.subscriptionCount - b.subscriptionCount
-                : b.subscriptionCount - a.subscriptionCount;
-            }
-            const aTime = a.lastOrderAt ? new Date(a.lastOrderAt).getTime() : 0;
-            const bTime = b.lastOrderAt ? new Date(b.lastOrderAt).getTime() : 0;
-            return sortVal.includes('asc') ? aTime - bTime : bTime - aTime;
-          })
+          .sort((a, b) =>
+            sortSelected[0].includes('asc')
+              ? a.subscriptionCount - b.subscriptionCount
+              : b.subscriptionCount - a.subscriptionCount,
+          )
           .map((c, index) => (
           <IndexTable.Row
             id={String(c.numericId)}
@@ -171,15 +151,12 @@ export default function CustomersTable({customers, pageInfo}: CustomersTableProp
             <IndexTable.Cell>
               <Text as="span" variant="bodySm">{c.subscriptionCount}</Text>
             </IndexTable.Cell>
-            <IndexTable.Cell>
-              <Text as="span" variant="bodySm">{c.lastOrderAt ? formatDate(c.lastOrderAt, (Intl.DateTimeFormat().resolvedOptions().locale || 'en-US')) : '-'}</Text>
-            </IndexTable.Cell>
           </IndexTable.Row>
         ))}
       </IndexTable>
       {pageInfo.hasNextPage && (
         <Box>
-          <Link to={`?after=${encodeURIComponent(pageInfo.endCursor ?? '')}${selectedTabKey !== 'all' ? `&subsView=${selectedTabKey}` : ''}&subsSort=${encodeURIComponent(sortSelected[0])}`}>{t('table.pagination.nextPage')}</Link>
+          <Link to={`?after=${encodeURIComponent(pageInfo.endCursor ?? '')}${selectedTabKey !== 'all' ? `&subsView=${selectedTabKey}` : ''}`}>{t('table.pagination.nextPage')}</Link>
         </Box>
       )}
     </Card>
