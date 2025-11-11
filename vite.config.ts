@@ -2,6 +2,7 @@ import {vitePlugin as remix} from '@remix-run/dev';
 import {defineConfig} from 'vite';
 import type {HmrOptions, UserConfig} from 'vite';
 import tsconfigPaths from 'vite-tsconfig-paths';
+import { vercelPreset } from '@vercel/remix/vite';
 
 if (
   process.env.HOST &&
@@ -57,6 +58,7 @@ export default defineConfig({
         v3_singleFetch: true,
       },
       ignoredRouteFiles: ['**/.*'],
+      presets: [vercelPreset()],
     }),
     tsconfigPaths({
       projects: [

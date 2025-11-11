@@ -55,6 +55,7 @@
     "@shopify/shopify-app-remix": "3.8.3",
     "@shopify/shopify-app-session-storage-memory": "4.0.18",
     "@shopify/shopify-app-session-storage-prisma": "6.0.7",
+    "@vercel/remix": "^2.15.2",
     "@shopify/ui-extensions": "2025.7.0",
     "@shopify/ui-extensions-react": "2025.7.0",
     "@testing-library/user-event": "14.6.1",
