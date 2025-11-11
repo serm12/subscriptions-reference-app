@@ -8,6 +8,8 @@
       "name": "Name",
       "email": "Email",
       "subscriptionCount": "Subscription count"
+      ,
+      "lastOrderAt": "Last order time"
     },
     "resourceName": {
       "singular": "Customer",
@@ -21,7 +23,8 @@
     "sort": {
       "subscriptionCountLabel": "By subscription count",
       "ascendingLabel": "Ascending",
-      "descendingLabel": "Descending"
+      "descendingLabel": "Descending",
+      "lastOrderAtLabel": "By last order time"
     },
     "emptyState": {
       "title": "No customers found",
