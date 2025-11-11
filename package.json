@@ -3,7 +3,7 @@
   "type": "module",
   "private": true,
   "engines": {
-    "node": "^18.20 || ^20.10 || >=21.0.0"
+    "node": "22.13.1"
   },
   "scripts": {
     "build": "cross-env NODE_ENV=production remix vite:build",

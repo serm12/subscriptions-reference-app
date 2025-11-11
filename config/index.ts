@@ -10,6 +10,11 @@ const isProduction = environment === NODE_ENV.PRODUCTION;
 const isDevelopment = environment === NODE_ENV.DEVELOPMENT;
 const isTest = environment === NODE_ENV.TEST;
 const appGID = process.env.APP_GID;
+// Prefer Prisma-backed session storage when a DATABASE_URL is available.
+// Fall back to in-memory only when explicitly requested or no DB is configured.
+const hasDatabaseUrl = Boolean(process.env.DATABASE_URL);
+const preferMemoryStorage =
+  process.env.SESSION_STORAGE === 'MEMORY' || !hasDatabaseUrl;
 
 export const config: Configuration = {
   environment: process.env.NODE_ENV as NodeEnv,
@@ -17,9 +22,10 @@ export const config: Configuration = {
     debug: isDevelopment,
   },
   shopify: {
-    sessionStorage: isTest
-      ? SessionStorageConfig.Memory
-      : SessionStorageConfig.Prisma,
+    sessionStorage:
+      isTest || preferMemoryStorage
+        ? SessionStorageConfig.Memory
+        : SessionStorageConfig.Prisma,
   },
   logger: (() => {
     if (isProduction) {
