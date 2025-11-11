@@ -2,7 +2,7 @@
 
 name = "Subscriptions application"
 client_id = "9bcdfdbaee73e8ec5bb719ba32a297dc"
-application_url = "http://localhost:3000"
+application_url = "https://example.com"
 embedded = true
 
 [build]
@@ -14,9 +14,9 @@ scopes = "customer_read_orders,read_locales,read_locations,read_themes,write_met
 
 [auth]
 redirect_urls = [
-  "http://localhost:3000/auth/callback",
-  "http://localhost:3000/auth/shopify/callback",
-  "http://localhost:3000/api/auth/callback",
+  "https://example.com/auth/callback",
+  "https://example.com/auth/shopify/callback",
+  "https://example.com/api/auth/callback",
 ]
 
 [webhooks]
@@ -65,3 +65,6 @@ api_version = "unstable"
   [[webhooks.subscriptions]]
   uri = "/webhooks/shop_redact"
   compliance_topics = [ "shop/redact" ]
+
+[pos]
+embedded = false
