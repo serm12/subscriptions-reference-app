@@ -13,6 +13,7 @@ type CustomerItem = {
   displayName: string | null;
   email: string | null;
   subscriptionCount: number;
+  lastOrderDate: string | null;
 };
 
 type LoaderData = {
@@ -27,8 +28,14 @@ export async function loader({request}: LoaderFunctionArgs) {
   const customersQuery = `#graphql
     query Customers($first: Int!, $after: String) {
       customers(first: $first, after: $after) {
-        edges { node { id displayName email } }
-        pageInfo { hasNextPage endCursor }
+        edges {
+          node {
+            id
+            displayName
+            email
+          }
+        }
+        pageInfo { hasNextPage, endCursor }
       }
     }
   `;
@@ -39,14 +46,18 @@ export async function loader({request}: LoaderFunctionArgs) {
     variables: {first: 10, after: afterParam},
   });
   const json = await customersResp.json();
-  const edges: Array<{node: {id: string; displayName: string | null; email: string | null}}> =
-    json.data?.customers?.edges ?? [];
+  const edges = (json.data?.customers?.edges ?? []) as Array<{
+    node: { id: string; displayName: string | null; email: string | null };
+  }>;
   const pageInfo = json.data?.customers?.pageInfo ?? {hasNextPage: false, endCursor: null};
 
   const customers: CustomerItem[] = [];
   for (const edge of edges) {
     const gid = edge.node.id;
-    const numericId = Number(parseGid(gid));
+        const numericId = Number(parseGid(gid));
+    // 最近订阅事件时间：遍历订阅合约，取 (originOrderCreatedAt 或 nextBillingDate) 的最大值
+    let latestEventTs = 0;
+    let latestEventIso: string | null = null;
 
     // 统计该客户的订阅数量（最多遍历 5 页以控制开销）
     const customerGid = composeGid('Customer', numericId);
@@ -68,17 +79,32 @@ export async function loader({request}: LoaderFunctionArgs) {
         (c) => c.customer.id === customerGid,
       );
       totalCount += filtered.length;
+      // 与详情页一致：事件时间 = originOrderCreatedAt 优先，否则 nextBillingDate
+      for (const c of filtered) {
+        const useDate = c.originOrderCreatedAt ?? c.nextBillingDate ?? null;
+        if (useDate) {
+          const ts = new Date(useDate).getTime();
+          if (!Number.isNaN(ts) && ts > latestEventTs) {
+            latestEventTs = ts;
+            latestEventIso = useDate;
+          }
+        }
+      }
       if (!subscriptionContractPageInfo.hasNextPage) break;
       after = subscriptionContractPageInfo.endCursor ?? undefined;
     }
 
+    // 传递原始 ISO 字符串，由前端用店铺时区格式化
+    const lastOrderDate = latestEventTs > 0 ? latestEventIso : null;
+
     customers.push({
-      id: gid,
-      numericId,
-      displayName: edge.node.displayName ?? null,
-      email: edge.node.email ?? null,
-      subscriptionCount: totalCount,
-    });
+        id: gid,
+        numericId,
+        displayName: edge.node.displayName ?? null,
+        email: edge.node.email ?? null,
+        subscriptionCount: totalCount,
+        lastOrderDate,
+      });
   }
 
   // 根据 subsView 进行筛选：with=有订阅，without=无订阅，all=全部

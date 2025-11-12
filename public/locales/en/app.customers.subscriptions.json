@@ -1,6 +1,6 @@
 {
   "page": {
-    "title": "Customer {{id}} subscriptions overview"
+    "title": "Customer {{name}} subscriptions overview"
   },
   "summary": "This customer has {{count}} subscription contracts",
   "sample": {

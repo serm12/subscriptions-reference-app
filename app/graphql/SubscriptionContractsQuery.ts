@@ -26,6 +26,10 @@ query SubscriptionContracts(
           displayName
         }
         status
+        nextBillingDate
+        originOrder {
+          createdAt
+        }
         deliveryPolicy {
           interval
           intervalCount
@@ -37,6 +41,7 @@ query SubscriptionContracts(
           edges {
             node {
               id
+              createdAt
               errorCode
               processingError {
                 code
@@ -76,10 +81,39 @@ query SubscriptionContracts(
               id
               productId
               title
+              variantTitle
+              quantity
+              currentPrice {
+                currencyCode
+                amount
+              }
+              variantImage {
+                url
+                altText
+              }
               lineDiscountedPrice {
                 amount
                 currencyCode
-              }            }
+              }
+              pricingPolicy {
+                basePrice {
+                  currencyCode
+                  amount
+                }
+                cycleDiscounts {
+                  adjustmentType
+                  adjustmentValue {
+                    ... on MoneyV2 {
+                      amount
+                      currencyCode
+                    }
+                    ... on SellingPlanPricingPolicyPercentageValue {
+                      percentage
+                    }
+                  }
+                }
+              }
+            }
           }
         }
               }

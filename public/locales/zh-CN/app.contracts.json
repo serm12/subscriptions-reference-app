@@ -174,6 +174,14 @@
       "amountOff": "{{value}} 折扣",
       "fixedPrice": "{{value}} 固定价格"
     },
+    "subscriptionEvent": "订阅事件",
+    "subscriptionEventText": {
+      "active": "合同进行中，后续订单会创建",
+      "paused": "合同已暂停，不会创建订单",
+      "cancelled": "合同已取消，不再创建订单",
+      "failed": "上次结算失败，系统将自动重试",
+      "default": "状态：{{status}}"
+    },
     "delivery": "配送",
     "pastOrders": "过去的订单",
     "viewOrder": "查看",

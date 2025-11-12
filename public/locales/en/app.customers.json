@@ -7,7 +7,8 @@
       "id": "Customer ID",
       "name": "Name",
       "email": "Email",
-      "subscriptionCount": "Subscription count"
+      "subscriptionCount": "Subscription count",
+      "lastOrderDate": "Last order date"
     },
     "resourceName": {
       "singular": "Customer",
@@ -20,6 +21,7 @@
     },
     "sort": {
       "subscriptionCountLabel": "By subscription count",
+      "latestEventLabel": "By latest subscription event",
       "ascendingLabel": "Ascending",
       "descendingLabel": "Descending"
     },

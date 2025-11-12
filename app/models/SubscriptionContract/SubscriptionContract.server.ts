@@ -98,17 +98,21 @@ export async function getContracts(
       lines,
       linesCount,
       billingAttempts,
+      nextBillingDate,
+      originOrder,
       currencyCode,
     }) => {
       const contractLines = nodesFromEdges(lines.edges || []).map((line) => ({
         ...line,
         productId: line.productId ?? undefined,
+        variantImageURL: (line as any).variantImage?.url ?? undefined,
       }));
 
       const contractBillingAttempts = nodesFromEdges(
         billingAttempts?.edges || [],
       ).map((attempt) => ({
         id: attempt.id,
+        createdAt: attempt.createdAt,
         errorCode: attempt.errorCode,
         processingError: formatProcessingError(attempt),
       }));
@@ -125,6 +129,8 @@ export async function getContracts(
           intervalCount: deliveryPolicy?.intervalCount,
         },
         billingAttempts: contractBillingAttempts,
+        nextBillingDate,
+        originOrderCreatedAt: originOrder?.createdAt ?? null,
         status,
         totalPrice: subtotalPrice,
         lines: contractLines,

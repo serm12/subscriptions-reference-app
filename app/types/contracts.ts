@@ -195,6 +195,8 @@ export interface SubscriptionContractListItem {
   lines: SubscriptionContractListItemLine[];
   lineCount: number;
   billingAttempts: BillingAttempt[];
+  nextBillingDate?: string;
+  originOrderCreatedAt?: string | null;
 }
 
 export interface SubscriptionContractListItemLine {
@@ -203,6 +205,10 @@ export interface SubscriptionContractListItemLine {
   productId?: string;
   variantTitle?: string;
   variantImageURL?: string;
+  quantity?: number;
+  currentPrice?: Money;
+  lineDiscountedPrice?: Money;
+  pricingPolicy?: ContractDetailsPricingPolicy | null;
 }
 
 export interface SubscriptionContractListItemCustomer {
@@ -212,6 +218,7 @@ export interface SubscriptionContractListItemCustomer {
 
 export interface BillingAttempt {
   id: string;
+  createdAt: string;
   errorCode?: string | null;
   processingError?: BillingAttemptProcessingError | null;
 }

@@ -159,6 +159,14 @@
       "amountOff": "{{value}} off",
       "fixedPrice": "{{value}} fixed price"
     },
+    "subscriptionEvent": "Subscription event",
+    "subscriptionEventText": {
+      "active": "Contract is active; upcoming orders will be created",
+      "paused": "Contract is paused; no orders will be created",
+      "cancelled": "Contract is canceled; no further orders",
+      "failed": "Last billing attempt failed; will retry automatically",
+      "default": "Status: {{status}}"
+    },
     "delivery": "Delivery",
     "localPickup": "{{value}}, local pickup",
     "nextOrders": {

@@ -1,0 +1,10 @@
+{
+  "table": {
+    "headings": {
+      "lastOrderDate": "最后订单日期"
+    },
+    "sort": {
+      "latestEventLabel": "按最近订阅事件"
+    }
+  }
+}

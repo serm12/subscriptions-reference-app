@@ -51,3 +51,27 @@ export function useFormatDate() {
     return formatDate(date, locale, ianaTimezone);
   };
 }
+
+export function formatDateTime(
+  date: string,
+  locale: string,
+  timeZone?: string,
+): string {
+  return new Date(date).toLocaleString(locale, {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    timeZone,
+    hour12: false,
+  });
+}
+
+export function useFormatDateTime() {
+  const {ianaTimezone} = useShopInfo();
+
+  return (date: string, locale: string) => {
+    return formatDateTime(date, locale, ianaTimezone);
+  };
+}
