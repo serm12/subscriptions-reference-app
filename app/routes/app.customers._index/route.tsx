@@ -1,6 +1,7 @@
 import type {LoaderFunctionArgs} from '@remix-run/node';
-import {useLoaderData} from '@remix-run/react';
-import {Page} from '@shopify/polaris';
+import {useLoaderData, useNavigate} from '@remix-run/react';
+import {Page, Box, Button, ButtonGroup, Icon} from '@shopify/polaris';
+import {CalendarIcon, ProfileIcon} from '@shopify/polaris-icons';
 import {composeGid, parseGid} from '@shopify/admin-graphql-api-utilities';
 
 import {authenticate} from '~/shopify.server';
@@ -120,9 +121,16 @@ export async function loader({request}: LoaderFunctionArgs) {
 
 export default function CustomersSubscriptionsListPage() {
   const {customers, pageInfo} = useLoaderData<LoaderData>();
+  const navigate = useNavigate();
 
   return (
     <Page title="Subscription Customers">
+      <Box paddingBlockEnd="400">
+          <ButtonGroup variant="segmented">
+            <Button onClick={() => navigate("/app/contracts")} icon={<Icon source={CalendarIcon} />}>Contracts</Button>
+            <Button onClick={() => navigate("/app/customers")} pressed icon={<Icon source={ProfileIcon} />}>Customers</Button>
+          </ButtonGroup>
+      </Box>
       <CustomersTable customers={customers} pageInfo={pageInfo} />
     </Page>
   );

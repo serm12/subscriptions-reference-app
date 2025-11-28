@@ -21,7 +21,7 @@ import {getContracts} from '~/models/SubscriptionContract/SubscriptionContract.s
 import {authenticate} from '~/shopify.server';
 import type {SubscriptionContractListItem} from '~/types/contracts';
 import {SubscriptionContractStatus} from '~/types/contracts';
-import {useContractListState} from '~/routes/app._index/hooks/useContractListState';
+import {useContractListState} from '~/routes/app.contracts._index/hooks/useContractListState';
 import {useDeliveryFrequencyFormatter} from '~/hooks';
 import {useFormatDateTime} from '~/utils/helpers/date';
 import {discountTextFromCycleDiscount} from '~/utils/helpers/contracts';

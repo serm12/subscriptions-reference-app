@@ -159,7 +159,7 @@ export default function CustomersTable({customers, pageInfo}: CustomersTableProp
             onClick={() => navigate(`/app/customers/${c.numericId}/subscriptions`)}
           >
             <IndexTable.Cell>
-              <Text as="span" variant="bodySm">{c.displayName ?? '-'}</Text>
+              <Text as="span" variant="bodySm" fontWeight="bold">{c.displayName ?? '-'}</Text>
             </IndexTable.Cell>
             <IndexTable.Cell>
               <Text as="span" variant="bodySm">{c.email ?? '-'}</Text>

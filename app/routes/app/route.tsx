@@ -96,8 +96,8 @@ export default function App() {
             <Link to="/app" rel="home">
               {t('navigation.home')}
             </Link>
+            <Link to="/app/contracts">{t('navigation.subscription')}</Link>
             <Link to="/app/plans">{t('navigation.plans')}</Link>
-            <Link to="/app/customers">{t('navigation.customers')}</Link>
             <Link to="/app/settings">{t('navigation.settings')}</Link>
           </NavMenu>
           <Outlet />
