@@ -13,10 +13,11 @@ import {
   Divider,
   MediaCard,
   VideoThumbnail,
+  Icon,
 } from '@shopify/polaris';
 import {
   CheckIcon,
-  CircleIcon
+  XIcon
 } from '@shopify/polaris-icons';
 import {authenticate} from '~/shopify.server';
 import {getContracts} from '~/models/SubscriptionContract/SubscriptionContract.server';
@@ -133,7 +134,7 @@ export default function Dashboard() {
             <BlockStack gap="200">
                 <InlineStack align="space-between">
                     <Text as="h2" variant="headingSm">Setup guide</Text>
-                    <Button variant="plain" icon={CircleIcon}>Dismiss</Button> 
+                    <Button variant="plain" icon={XIcon}>Dismiss</Button> 
                 </InlineStack>
                 <Text as="p" variant="bodySm" tone="subdued">{completedSteps} / {steps.length} completed</Text>
                 <ProgressBar progress={progress} size="small" tone="primary" />
@@ -144,9 +145,7 @@ export default function Dashboard() {
                     <InlineStack key={index} gap="300" align="start" blockAlign="start">
                         <Box paddingBlockStart="050">
                             {step.completed ? (
-                                <div style={{color: 'var(--p-color-icon-success)'}}>
-                                    <CheckIcon width={20} height={20} />
-                                </div>
+                                <Icon source={CheckIcon} tone="success" />
                             ) : (
                                 <div style={{color: 'var(--p-color-icon-disabled)'}}>
                                     <div style={{
