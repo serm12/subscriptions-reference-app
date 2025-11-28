@@ -6,149 +6,247 @@ import {
   Card,
   BlockStack,
   Text,
-  IndexTable,
-  EmptySearchResult,
   InlineStack,
   Button,
-  Badge,
+  ProgressBar,
+  Box,
+  Divider,
+  MediaCard,
+  VideoThumbnail,
 } from '@shopify/polaris';
-import {ArrowRightIcon} from '@shopify/polaris-icons';
+import {
+  CheckIcon,
+  CircleIcon
+} from '@shopify/polaris-icons';
 import {authenticate} from '~/shopify.server';
 import {getContracts} from '~/models/SubscriptionContract/SubscriptionContract.server';
-import {useFormatDateTime} from '~/utils/helpers/date';
+import {getSellingPlanGroups} from '~/models/SellingPlan/SellingPlan.server';
 import {useTranslation} from 'react-i18next';
 
 export async function loader({request}: {request: Request}) {
   const {admin} = await authenticate.admin(request);
 
-  // Fetch Recent Contracts
-  const {subscriptionContracts} = await getContracts(admin.graphql, {
-    first: 5,
-    sortKey: 'CREATED_AT',
-    reverse: true,
-  });
+  const today = new Date();
+  const sevenDaysAgo = new Date(today);
+  sevenDaysAgo.setDate(today.getDate() - 7);
+  const sevenDaysAgoIso = sevenDaysAgo.toISOString();
 
-  // Fetch Recent Customers
-  const customersQuery = `#graphql
-    query Customers($first: Int!) {
-      customers(first: $first, reverse: true) {
-        edges {
-          node {
-            id
-            displayName
-            email
-          }
-        }
-      }
-    }
-  `;
-  const customersResp = await admin.graphql(customersQuery, {
-    variables: {first: 5},
-  });
-  const customersJson = await customersResp.json();
-  const customers = customersJson.data?.customers?.edges?.map((edge: any) => edge.node) || [];
+  const [
+    sellingPlanGroupsResult,
+    allContractsResult,
+    activeContractsResult,
+    newContractsResult,
+    cancelledContractsResult
+  ] = await Promise.all([
+    getSellingPlanGroups(admin.graphql, {first: 1}),
+    getContracts(admin.graphql, {first: 1}),
+    getContracts(admin.graphql, {first: 50, query: `status:ACTIVE`}),
+    getContracts(admin.graphql, {first: 50, query: `created_at:>=${sevenDaysAgoIso}`}),
+    getContracts(admin.graphql, {first: 50, query: `status:CANCELLED AND updated_at:>=${sevenDaysAgoIso}`}),
+  ]);
+
+  const hasSellingPlans = sellingPlanGroupsResult.sellingPlanGroups.length > 0;
+  const hasContracts = allContractsResult.subscriptionContracts.length > 0;
+  
+  const activeCount = activeContractsResult.subscriptionContracts.length;
+  const newCount = newContractsResult.subscriptionContracts.length;
+  const cancelledCount = cancelledContractsResult.subscriptionContracts.length;
 
   return json({
-    recentContracts: subscriptionContracts,
-    recentCustomers: customers,
+    hasSellingPlans,
+    hasContracts,
+    activeCount,
+    newCount,
+    cancelledCount,
+    dateRange: `${sevenDaysAgo.toLocaleDateString('en-US', {month: 'short', day: 'numeric'})}-${today.toLocaleDateString('en-US', {month: 'short', day: 'numeric', year: 'numeric'})}`
   });
 }
 
 export default function Dashboard() {
-  const {recentContracts, recentCustomers} = useLoaderData<typeof loader>();
+  const {
+    hasSellingPlans,
+    hasContracts,
+    activeCount,
+    newCount,
+    cancelledCount,
+    dateRange
+  } = useLoaderData<typeof loader>();
+  
   const navigate = useNavigate();
-  const {t, i18n} = useTranslation();
-  const formatDateTime = useFormatDateTime();
+  const {t} = useTranslation();
 
-  const handleContractClick = (id: string) => {
-    // Extract numeric ID if needed, but the route usually takes the GID or ID
-    // Existing routes: /app/contracts/$id
-    // ID from getContracts is likely a GID.
-    // The existing app seems to use numeric ID in URL sometimes, but let's check.
-    // In app.contracts._index, it navigates to `${contract.id.split('/').pop()}` usually.
-    const numericId = id.split('/').pop();
-    navigate(`/app/contracts/${numericId}`);
-  };
+  // Calculate progress
+  // Steps:
+  // 1. Create your first subscription plan
+  // 2. Import existing contracts
+  // 3. Add subscriptions to product pages
+  // 4. Allow customers to manage subscriptions
+  // 5. Allow customer to access account post purchase
+  // 6. Customize notifications
+  
+  // We only dynamically check 1 and 2 for now.
+  // We can assume 3-6 are false for this reference implementation or static.
+  // The image shows 1/6 completed (only Import existing contracts checked).
+  // Let's make it dynamic based on our checks.
+  
+  const steps = [
+    {
+      label: 'Create your first subscription plan',
+      description: 'Get more repeat business by allowing customers to purchase products or services on a recurring basis',
+      completed: hasSellingPlans,
+      action: {
+        content: 'Create plan',
+        onAction: () => navigate('/app/plans/new')
+      }
+    },
+    {
+      label: 'Import existing contracts',
+      completed: hasContracts,
+    },
+    {
+      label: 'Add subscriptions to product pages',
+      completed: false,
+    },
+    {
+      label: 'Allow customers to manage subscriptions',
+      completed: false,
+    },
+    {
+      label: 'Allow customer to access account post purchase',
+      completed: false,
+    },
+    {
+      label: 'Customize notifications',
+      completed: false,
+    }
+  ];
+
+  const completedSteps = steps.filter(s => s.completed).length;
+  const progress = (completedSteps / steps.length) * 100;
 
   return (
-    <Page title="Dashboard">
-      <Layout>
-        <Layout.Section>
-          <Card>
-            <BlockStack gap="400">
+    <Page title="Get started with Shopify Subscriptions">
+      <BlockStack gap="500">
+        {/* Setup Guide */}
+        <Card>
+          <BlockStack gap="400">
+            <BlockStack gap="200">
                 <InlineStack align="space-between">
-                    <Text as="h2" variant="headingMd">Recent Contracts</Text>
-                    <Button variant="plain" onClick={() => navigate("/app")} icon={ArrowRightIcon}>View all</Button>
+                    <Text as="h2" variant="headingSm">Setup guide</Text>
+                    <Button variant="plain" icon={CircleIcon}>Dismiss</Button> 
                 </InlineStack>
-                {recentContracts.length === 0 ? (
-                    <EmptySearchResult
-                        title="No contracts found"
-                        description="Create a subscription contract to get started"
-                        withIllustration
-                    />
-                ) : (
-                    <IndexTable
-                        resourceName={{singular: 'contract', plural: 'contracts'}}
-                        itemCount={recentContracts.length}
-                        headings={[
-                            {title: 'ID'},
-                            {title: 'Customer'},
-                            {title: 'Status'},
-                            {title: 'Next Billing'},
-                        ]}
-                        selectable={false}
-                    >
-                        {recentContracts.map((contract, index) => (
-                            <IndexTable.Row 
-                                id={contract.id} 
-                                key={contract.id} 
-                                position={index}
-                                onClick={() => handleContractClick(contract.id)}
-                            >
-                                <IndexTable.Cell>
-                                    <Text as="span" variant="bodyMd" fontWeight="bold">
-                                        {contract.id.split('/').pop()}
-                                    </Text>
-                                </IndexTable.Cell>
-                                <IndexTable.Cell>
-                                    {contract.customer.displayName}
-                                </IndexTable.Cell>
-                                <IndexTable.Cell>
-                                    <Badge tone={contract.status === 'ACTIVE' ? 'success' : undefined}>
-                                        {contract.status}
-                                    </Badge>
-                                </IndexTable.Cell>
-                                <IndexTable.Cell>
-                                    {contract.nextBillingDate ? formatDateTime(contract.nextBillingDate, i18n.language) : '-'}
-                                </IndexTable.Cell>
-                            </IndexTable.Row>
-                        ))}
-                    </IndexTable>
-                )}
+                <Text as="p" variant="bodySm" tone="subdued">{completedSteps} / {steps.length} completed</Text>
+                <ProgressBar progress={progress} size="small" tone="primary" />
             </BlockStack>
-          </Card>
-        </Layout.Section>
-
-        <Layout.Section variant="oneThird">
-            <Card>
-                <BlockStack gap="400">
-                    <InlineStack align="space-between">
-                        <Text as="h2" variant="headingMd">Recent Customers</Text>
-                        <Button variant="plain" onClick={() => navigate("/app/customers")} icon={ArrowRightIcon}>View all</Button>
+            
+            <BlockStack gap="400">
+                {steps.map((step, index) => (
+                    <InlineStack key={index} gap="300" align="start" blockAlign="start">
+                        <Box paddingBlockStart="050">
+                            {step.completed ? (
+                                <div style={{color: 'var(--p-color-icon-success)'}}>
+                                    <CheckIcon width={20} height={20} />
+                                </div>
+                            ) : (
+                                <div style={{color: 'var(--p-color-icon-disabled)'}}>
+                                    <div style={{
+                                        width: 20, 
+                                        height: 20, 
+                                        borderRadius: '50%', 
+                                        border: '1px solid currentColor',
+                                        boxSizing: 'border-box'
+                                    }} />
+                                </div>
+                            )}
+                        </Box>
+                        <BlockStack gap="100">
+                            <Text as="p" variant="bodyMd" fontWeight={!step.completed && index === 0 ? "bold" : "regular"}>
+                                {step.label}
+                            </Text>
+                            {step.description && !step.completed && (
+                                <Text as="p" variant="bodyMd" tone="subdued">
+                                    {step.description}
+                                </Text>
+                            )}
+                            {step.action && !step.completed && (
+                                <Box paddingBlockStart="200">
+                                    <Button onClick={step.action.onAction} variant="primary">
+                                        {step.action.content}
+                                    </Button>
+                                </Box>
+                            )}
+                        </BlockStack>
                     </InlineStack>
-                    <BlockStack gap="300">
-                        {recentCustomers.map((customer: any) => (
-                             <BlockStack key={customer.id} gap="100">
-                                <Text as="p" variant="bodyMd" fontWeight="bold">{customer.displayName || 'Unknown'}</Text>
-                                <Text as="p" variant="bodySm" tone="subdued">{customer.email || 'No email'}</Text>
-                             </BlockStack>
-                        ))}
-                        {recentCustomers.length === 0 && <Text as="p" tone="subdued">No customers found</Text>}
+                ))}
+            </BlockStack>
+          </BlockStack>
+        </Card>
+
+        {/* Performance */}
+        <BlockStack gap="200">
+            <InlineStack gap="200" align="start">
+                 <Text as="h2" variant="headingSm">Performance</Text>
+                 <Text as="span" tone="subdued" variant="bodySm">{dateRange}</Text>
+            </InlineStack>
+            
+            <Card>
+                <InlineStack gap="800" align="start">
+                    <BlockStack gap="100">
+                         <InlineStack gap="100">
+                             <Text as="p" variant="bodyMd" fontWeight="bold">Subscriptions revenue</Text>
+                         </InlineStack>
+                         <Text as="h2" variant="headingLg">$0</Text>
+                         <div style={{height: 4, width: 50, backgroundColor: '#008060', borderRadius: 2}}></div>
                     </BlockStack>
-                </BlockStack>
+
+                    <BlockStack gap="100">
+                         <InlineStack gap="100">
+                             <Text as="p" variant="bodyMd" fontWeight="bold">Active subscriptions</Text>
+                         </InlineStack>
+                         <Text as="h2" variant="headingLg">{activeCount}</Text>
+                         <div style={{height: 4, width: 50, backgroundColor: '#008060', borderRadius: 2}}></div>
+                    </BlockStack>
+
+                    <BlockStack gap="100">
+                         <InlineStack gap="100">
+                             <Text as="p" variant="bodyMd" fontWeight="bold">New subscriptions</Text>
+                         </InlineStack>
+                         <Text as="h2" variant="headingLg">{newCount}</Text>
+                         <div style={{height: 4, width: 50, backgroundColor: '#008060', borderRadius: 2}}></div>
+                    </BlockStack>
+
+                    <BlockStack gap="100">
+                         <InlineStack gap="100">
+                             <Text as="p" variant="bodyMd" fontWeight="bold">Cancelled subscriptions</Text>
+                         </InlineStack>
+                         <Text as="h2" variant="headingLg">{cancelledCount}</Text>
+                         <div style={{height: 4, width: 50, backgroundColor: '#008060', borderRadius: 2}}></div>
+                    </BlockStack>
+                </InlineStack>
             </Card>
-        </Layout.Section>
-      </Layout>
+        </BlockStack>
+
+        {/* Promo Card */}
+        <MediaCard
+            title="Increase recurring revenue and build customer loyalty"
+            primaryAction={{
+                content: 'Read blog post',
+                onAction: () => {},
+            }}
+            secondaryAction={{
+                content: 'Learn more',
+                onAction: () => {},
+            }}
+            description="Easily set up and manage simple subscription offerings with the new, free Shopify Subscriptions app. With new customer accounts, your customers will have the flexibility to pause or skip orders, update payment and shipping details, and more."
+            popoverActions={[{content: 'Dismiss', onAction: () => {}}]}
+        >
+            <VideoThumbnail
+                videoLength={80}
+                thumbnailUrl="https://cdn.shopify.com/s/files/1/0070/7032/files/shopify-subscriptions-app-thumbnail.jpg?v=1697136000"
+                onClick={() => console.log('clicked')}
+            />
+        </MediaCard>
+      </BlockStack>
     </Page>
   );
 }
